@@ -1,7 +1,7 @@
 {
   "name": "sim-procesos-memoria",
   "version": "1.0.0",
-  "description": "Biblioteca de clases TypeScript que simula procesos, memoria contigua y planificación de CPU (Round-Robin) mediante ticks discretos.",
+  "description": "Biblioteca de clases TypeScript que simula procesos, memoria contigua y planificacion de CPU (Round-Robin) mediante ticks discretos.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

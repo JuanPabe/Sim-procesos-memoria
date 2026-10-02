@@ -1,7 +1,7 @@
 ﻿/**
  * BloqueMemoria.ts
  *
- * Representación interna mutable de un bloque de memoria contiguo.
+ * Representacion interna mutable de un bloque de memoria contiguo.
  * Solo debe usarse dentro del paquete `memoria`.
  */
 

@@ -2,7 +2,7 @@
 import { Proceso } from "../src/modelos/Proceso.js";
 
 describe("Proceso - constructor y getters", () => {
-  it("crea un proceso válido", () => {
+  it("crea un proceso valido", () => {
     const p = new Proceso(1, 256, 4);
     expect(p.pid).toBe(1);
     expect(p.memoriaRequerida).toBe(256);
@@ -33,17 +33,17 @@ describe("Proceso - constructor y getters", () => {
     expect(() => new Proceso(1, 256, 3.2)).toThrow(/CPU/);
   });
 
-  it("acepta eventoES válido", () => {
+  it("acepta eventoES valido", () => {
     const p = new Proceso(1, 256, 4, { despuesDeTicksCpu: 2, duracion: 3 });
     expect(p.eventoES).toEqual({ despuesDeTicksCpu: 2, duracion: 3 });
   });
 
-  it("rechaza eventoES.despuesDeTicksCpu inválido", () => {
+  it("rechaza eventoES.despuesDeTicksCpu invalido", () => {
     expect(() => new Proceso(1, 256, 4, { despuesDeTicksCpu: 0, duracion: 3 })).toThrow(/EventoES/);
     expect(() => new Proceso(1, 256, 4, { despuesDeTicksCpu: -1, duracion: 3 })).toThrow(/EventoES/);
   });
 
-  it("rechaza eventoES.duracion inválida", () => {
+  it("rechaza eventoES.duracion invalida", () => {
     expect(() => new Proceso(1, 256, 4, { despuesDeTicksCpu: 2, duracion: 0 })).toThrow(/EventoES/);
   });
 
@@ -141,10 +141,10 @@ describe("Proceso - transiciones de estado y mutaciones", () => {
 
   it("lanza error en transiciones ilegales", () => {
     const p = new Proceso(1, 256, 4);
-    expect(() => p.despachar()).toThrow(/Transición ilegal/);
-    expect(() => p.ejecutarTick()).toThrow(/no está EJECUTANDO/);
-    expect(() => p.renovarQuantum()).toThrow(/no está EJECUTANDO/);
-    expect(() => p.decrementarES()).toThrow(/no está BLOQUEADO/);
+    expect(() => p.despachar()).toThrow(/Transicion ilegal/);
+    expect(() => p.ejecutarTick()).toThrow(/no esta EJECUTANDO/);
+    expect(() => p.renovarQuantum()).toThrow(/no esta EJECUTANDO/);
+    expect(() => p.decrementarES()).toThrow(/no esta BLOQUEADO/);
   });
 
   it("decrementarES lanza error si ticksESRestantes es 0", () => {

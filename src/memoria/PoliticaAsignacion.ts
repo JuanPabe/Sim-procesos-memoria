@@ -1,10 +1,10 @@
 ﻿/**
  * PoliticaAsignacion.ts
  *
- * Interfaz `PoliticaAsignacion` e implementaciones:
- * - PrimerAjuste: primer bloque con tamaño suficiente.
- * - MejorAjuste: bloque con menor tamaño suficiente (desempate: menor dirección).
- * - PeorAjuste: bloque con mayor tamaño suficiente (desempate: menor dirección).
+ * Interfaz PoliticaAsignacion e implementaciones:
+ * - PrimerAjuste: primer bloque con tamano suficiente.
+ * - MejorAjuste: bloque con menor tamano suficiente (desempate: menor direccion).
+ * - PeorAjuste: bloque con mayor tamano suficiente (desempate: menor direccion).
  */
 
 import type { InfoBloque } from "../tipos.js";

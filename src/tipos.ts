@@ -1,7 +1,7 @@
 ﻿/**
  * tipos.ts
  *
- * Interfaces y tipos puros del dominio de simulación.
+ * Interfaces y tipos puros del dominio de simulacion.
  */
 
 export type EstadoProceso =

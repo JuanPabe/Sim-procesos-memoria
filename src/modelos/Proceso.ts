@@ -1,9 +1,9 @@
-﻿/**
- * Proceso.ts
- *
- * Entidad que representa un proceso del sistema.
- * Encapsula el estado y hace cumplir las transiciones legales.
- */
+﻿/*
+  Proceso.ts
+ 
+  Entidad que representa un proceso del sistema.
+  Encapsula el estado y hace cumplir las transiciones.
+*/
 
 import type { EstadoProceso, EventoES, InfoProceso } from "../tipos.js";
 
@@ -35,27 +35,27 @@ export class Proceso {
     eventoES?: EventoES,
   ) {
     if (!Number.isInteger(pid) || pid <= 0) {
-      throw new Error(`PID inválido: ${String(pid)}. Debe ser un entero positivo.`);
+      throw new Error(`PID invalido: ${String(pid)}. Debe ser un entero positivo.`);
     }
     if (!Number.isInteger(memoriaRequerida) || memoriaRequerida <= 0) {
       throw new Error(
-        `Memoria requerida inválida: ${String(memoriaRequerida)}. Debe ser un entero positivo.`,
+        `Memoria requerida invalida: ${String(memoriaRequerida)}. Debe ser un entero positivo.`,
       );
     }
     if (!Number.isInteger(cpuTotal) || cpuTotal <= 0) {
       throw new Error(
-        `CPU total inválida: ${String(cpuTotal)}. Debe ser un entero positivo.`,
+        `CPU total invalida: ${String(cpuTotal)}. Debe ser un entero positivo.`,
       );
     }
     if (eventoES !== undefined) {
       if (!Number.isInteger(eventoES.despuesDeTicksCpu) || eventoES.despuesDeTicksCpu <= 0) {
         throw new Error(
-          `EventoES.despuesDeTicksCpu inválido: ${String(eventoES.despuesDeTicksCpu)}. Debe ser un entero positivo.`,
+          `EventoES.despuesDeTicksCpu invalido: ${String(eventoES.despuesDeTicksCpu)}. Debe ser un entero positivo.`,
         );
       }
       if (!Number.isInteger(eventoES.duracion) || eventoES.duracion <= 0) {
         throw new Error(
-          `EventoES.duracion inválida: ${String(eventoES.duracion)}. Debe ser un entero positivo.`,
+          `EventoES.duracion invalida: ${String(eventoES.duracion)}. Debe ser un entero positivo.`,
         );
       }
       if (eventoES.despuesDeTicksCpu >= cpuTotal) {
@@ -101,7 +101,7 @@ export class Proceso {
 
   ejecutarTick(): void {
     if (this._estado !== "EJECUTANDO") {
-      throw new Error(`No se puede ejecutar tick: el proceso ${String(this._pid)} no está EJECUTANDO (estado actual: ${this._estado}).`);
+      throw new Error(`No se puede ejecutar tick: el proceso ${String(this._pid)} no esta EJECUTANDO (estado actual: ${this._estado}).`);
     }
     this._quantumConsumido += 1;
     this._cpuRestante -= 1;
@@ -118,7 +118,7 @@ export class Proceso {
 
   decrementarES(): void {
     if (this._estado !== "BLOQUEADO") {
-      throw new Error(`No se puede decrementar E/S: el proceso ${String(this._pid)} no está BLOQUEADO.`);
+      throw new Error(`No se puede decrementar E/S: el proceso ${String(this._pid)} no esta BLOQUEADO.`);
     }
     if (this._ticksESRestantes <= 0) {
       throw new Error(`ticksESRestantes ya es 0 para el proceso ${String(this._pid)}.`);
@@ -137,7 +137,7 @@ export class Proceso {
 
   renovarQuantum(): void {
     if (this._estado !== "EJECUTANDO") {
-      throw new Error(`No se puede renovar quantum: el proceso ${String(this._pid)} no está EJECUTANDO.`);
+      throw new Error(`No se puede renovar quantum: el proceso ${String(this._pid)} no esta EJECUTANDO.`);
     }
     this._quantumConsumido = 0;
   }
@@ -163,7 +163,7 @@ export class Proceso {
     const permitidos = TRANSICIONES_LEGALES.get(this._estado);
     if (permitidos === undefined || !permitidos.has(nuevoEstado)) {
       throw new Error(
-        `Transición ilegal: ${this._estado} → ${nuevoEstado} para el proceso ${String(this._pid)}.`,
+        `Transicion ilegal: ${this._estado} → ${nuevoEstado} para el proceso ${String(this._pid)}.`,
       );
     }
     this._estado = nuevoEstado;

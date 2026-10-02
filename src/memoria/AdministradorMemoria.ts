@@ -2,7 +2,7 @@
  * AdministradorMemoria.ts
  *
  * Gestiona los bloques de memoria contigua.
- * Delega la selección de bloques a la política inyectada (Strategy).
+ * Delega la seleccion de bloques a la politica inyectada (Strategy).
  */
 
 import { BloqueMemoria } from "./BloqueMemoria.js";
@@ -17,7 +17,7 @@ export class AdministradorMemoria {
   constructor(memoriaTotal: number, politica: PoliticaAsignacion) {
     if (!Number.isInteger(memoriaTotal) || memoriaTotal <= 0) {
       throw new Error(
-        `memoriaTotal inválida: ${String(memoriaTotal)}. Debe ser un entero positivo.`,
+        `memoriaTotal invalida: ${String(memoriaTotal)}. Debe ser un entero positivo.`,
       );
     }
     this._memoriaTotal = memoriaTotal;
@@ -60,7 +60,7 @@ export class AdministradorMemoria {
 
     const bloque = this._bloques[indice];
     if (bloque === undefined) {
-      throw new Error(`Índice inválido al liberar PID ${String(pid)}.`);
+      throw new Error(`Indice invalido al liberar PID ${String(pid)}.`);
     }
     bloque.estaLibre = true;
     bloque.pidAsignado = undefined;
