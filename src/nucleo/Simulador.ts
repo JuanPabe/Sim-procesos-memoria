@@ -2,7 +2,7 @@ import { AdministradorMemoria } from "../memoria/AdministradorMemoria.js";
 import { PrimerAjuste, type PoliticaAsignacion } from "../memoria/PoliticaAsignacion.js";
 import { Proceso } from "../modelos/Proceso.js";
 import { RoundRobinPlanificador } from "../planificador/RoundRobinPlanificador.js";
-import type { EstadoSimulador } from "../tipos.js";
+import type { EstadoSimulador, InfoMetricas } from "../tipos.js";
 
 export class Simulador {
   private readonly _memoria: AdministradorMemoria;
@@ -42,6 +42,7 @@ export class Simulador {
     }
 
     this._memoria.liberar(pid);
+    this._procesos.delete(pid);
   }
 
   tick(): void {
@@ -56,6 +57,8 @@ export class Simulador {
     }
 
     if (resultado === "terminado" && procesoActual !== undefined) {
+      this._memoria.liberar(procesoActual.pid);
+      this._procesos.delete(procesoActual.pid);
       this._terminados.push(procesoActual);
     }
 
@@ -72,6 +75,22 @@ export class Simulador {
       bloqueados: this._bloqueados.map((proceso) => proceso.obtenerInfo()),
       terminados: this._terminados.map((proceso) => proceso.obtenerInfo()),
       mapaMemoria: this._memoria.obtenerMapa(),
+    };
+  }
+
+  obtenerMetricas(): InfoMetricas {
+    const memoriaLibreTotal = this._memoria.memoriaLibreTotal();
+    const mayorBloqueLibre = this._memoria.mayorBloqueLibre();
+    const fragmentacionExterna = Math.max(0, memoriaLibreTotal - mayorBloqueLibre);
+
+    return {
+      tick: this._tick,
+      ocupacionMemoria: this._memoria.memoriaOcupada(),
+      utilizacionCpu: this._planificador.procesoEnCpu() !== undefined ? 100 : 0,
+      cambiosDeContexto: this._planificador.obtenerCambiosDeContexto(),
+      memoriaLibreTotal,
+      mayorBloqueLibre,
+      fragmentacionExterna,
     };
   }
 

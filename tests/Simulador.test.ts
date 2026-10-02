@@ -68,4 +68,36 @@ describe("Simulador", () => {
     const estado = simulador.obtenerEstado();
     expect(estado.terminados.some((proceso) => proceso.pid === 2)).toBe(true);
   });
+
+  it("libera memoria cuando un proceso termina", () => {
+    const simulador = new Simulador(200, 2);
+    const proceso = new Proceso(1, 80, 1);
+
+    simulador.agregarProceso(proceso);
+    simulador.tick();
+    simulador.tick();
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.terminados.some((p) => p.pid === 1)).toBe(true);
+    expect(estado.mapaMemoria.every((bloque) => bloque.estaLibre)).toBe(true);
+  });
+
+  it("reporta métricas del sistema en cada tick", () => {
+    const simulador = new Simulador(100, 2);
+    const p1 = new Proceso(1, 50, 3);
+    const p2 = new Proceso(2, 50, 3);
+
+    simulador.agregarProceso(p1);
+    simulador.agregarProceso(p2);
+    simulador.tick();
+
+    const metricas = simulador.obtenerMetricas();
+    expect(metricas.tick).toBe(1);
+    expect(metricas.ocupacionMemoria).toBe(100);
+    expect(metricas.memoriaLibreTotal).toBe(0);
+    expect(metricas.mayorBloqueLibre).toBe(0);
+    expect(metricas.fragmentacionExterna).toBe(0);
+    expect(metricas.cambiosDeContexto).toBeGreaterThanOrEqual(1);
+    expect(metricas.utilizacionCpu).toBe(100);
+  });
 });
