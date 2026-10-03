@@ -48,8 +48,3 @@ npm test
 ```bash
 npm run build
 ```
-
-## Estado del proyecto
-
-La base funcional del simulador ya está implementada y validada con pruebas automáticas. El trabajo restante, si se desea, es pulir la documentación y afinar detalles de experiencia de uso en la interfaz del proyecto.
-
