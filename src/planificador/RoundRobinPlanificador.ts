@@ -22,6 +22,17 @@ export class RoundRobinPlanificador implements Planificador {
     this._colaListos.push(proceso);
   }
 
+  retirar(pid: number): void {
+    const indiceEnCola = this._colaListos.findIndex((proceso) => proceso.pid === pid);
+    if (indiceEnCola !== -1) {
+      this._colaListos.splice(indiceEnCola, 1);
+    }
+
+    if (this._procesoEnCpu?.pid === pid) {
+      this._procesoEnCpu = undefined;
+    }
+  }
+
   ejecutarTickCpu(): ResultadoTick {
     if (this._procesoEnCpu === undefined) {
       if (this._colaListos.length === 0) {

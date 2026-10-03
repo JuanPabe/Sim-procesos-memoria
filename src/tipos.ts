@@ -10,7 +10,8 @@ export type EstadoProceso =
   | "LISTO"
   | "EJECUTANDO"
   | "BLOQUEADO"
-  | "TERMINADO";
+  | "TERMINADO"
+  | "CANCELADO";
 
 export interface EventoES {
   readonly despuesDeTicksCpu: number;
@@ -52,5 +53,6 @@ export interface EstadoSimulador {
   readonly esperandoMemoria: ReadonlyArray<InfoProceso>;
   readonly bloqueados: ReadonlyArray<InfoProceso>;
   readonly terminados: ReadonlyArray<InfoProceso>;
+  readonly cancelados: ReadonlyArray<InfoProceso>;
   readonly mapaMemoria: ReadonlyArray<InfoBloque>;
 }

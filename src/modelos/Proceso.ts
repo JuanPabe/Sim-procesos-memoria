@@ -8,12 +8,13 @@
 import type { EstadoProceso, EventoES, InfoProceso } from "../tipos.js";
 
 const TRANSICIONES_LEGALES: ReadonlyMap<EstadoProceso, ReadonlySet<EstadoProceso>> = new Map([
-  ["NUEVO", new Set<EstadoProceso>(["ESPERANDO_MEMORIA", "LISTO"])],
-  ["ESPERANDO_MEMORIA", new Set<EstadoProceso>(["LISTO"])],
-  ["LISTO", new Set<EstadoProceso>(["EJECUTANDO"])],
-  ["EJECUTANDO", new Set<EstadoProceso>(["LISTO", "BLOQUEADO", "TERMINADO"])],
-  ["BLOQUEADO", new Set<EstadoProceso>(["LISTO"])],
+  ["NUEVO", new Set<EstadoProceso>(["ESPERANDO_MEMORIA", "LISTO", "CANCELADO"])],
+  ["ESPERANDO_MEMORIA", new Set<EstadoProceso>(["LISTO", "CANCELADO"])],
+  ["LISTO", new Set<EstadoProceso>(["EJECUTANDO", "CANCELADO"])],
+  ["EJECUTANDO", new Set<EstadoProceso>(["LISTO", "BLOQUEADO", "TERMINADO", "CANCELADO"])],
+  ["BLOQUEADO", new Set<EstadoProceso>(["LISTO", "CANCELADO"])],
   ["TERMINADO", new Set<EstadoProceso>()],
+  ["CANCELADO", new Set<EstadoProceso>()],
 ]);
 
 export class Proceso {
@@ -144,6 +145,10 @@ export class Proceso {
 
   terminar(): void {
     this.transicionar("TERMINADO");
+  }
+
+  cancelar(): void {
+    this.transicionar("CANCELADO");
   }
 
   obtenerInfo(): InfoProceso {

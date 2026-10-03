@@ -27,7 +27,7 @@ describe("Simulador", () => {
     expect(estado.procesoEnCpu).toBeDefined();
   });
 
-  it("libera memoria y admite un proceso que estaba esperando", () => {
+  it("cancela un proceso y admite uno que esperaba memoria", () => {
     const simulador = new Simulador(200, 2);
     const p1 = new Proceso(1, 100, 5);
     const p2 = new Proceso(2, 120, 5);
@@ -38,11 +38,95 @@ describe("Simulador", () => {
     expect(simulador.obtenerEstado().esperandoMemoria).toHaveLength(1);
 
     simulador.liberarProceso(1);
-    simulador.tick();
 
     const estado = simulador.obtenerEstado();
     expect(estado.esperandoMemoria).toHaveLength(0);
+    expect(estado.cancelados.some((proceso) => proceso.pid === 1)).toBe(true);
     expect(estado.listos.some((proceso) => proceso.pid === 2)).toBe(true);
+  });
+
+  it("cancela un proceso que esta ejecutandose y lo retira de la CPU", () => {
+    const simulador = new Simulador(100, 2);
+    const proceso = new Proceso(1, 100, 5);
+
+    simulador.agregarProceso(proceso);
+    simulador.tick();
+    simulador.liberarProceso(1);
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.procesoEnCpu).toBeUndefined();
+    expect(estado.cancelados[0]?.estado).toBe("CANCELADO");
+    expect(estado.mapaMemoria.every((bloque) => bloque.estaLibre)).toBe(true);
+    expect(() => simulador.tick()).not.toThrow();
+  });
+
+  it("cancela un proceso que todavia esperaba memoria", () => {
+    const simulador = new Simulador(100, 2);
+    simulador.agregarProceso(new Proceso(1, 100, 5));
+    simulador.agregarProceso(new Proceso(2, 50, 5));
+
+    simulador.liberarProceso(2);
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.esperandoMemoria).toHaveLength(0);
+    expect(estado.cancelados.some((proceso) => proceso.pid === 2)).toBe(true);
+    expect(estado.mapaMemoria.find((bloque) => !bloque.estaLibre)?.pidAsignado).toBe(1);
+  });
+
+  it("admite los procesos que esperan respetando su orden de llegada", () => {
+    const simulador = new Simulador(100, 2);
+    simulador.agregarProceso(new Proceso(1, 100, 5));
+    simulador.agregarProceso(new Proceso(2, 60, 5));
+    simulador.agregarProceso(new Proceso(3, 30, 5));
+
+    simulador.liberarProceso(1);
+    simulador.tick();
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.procesoEnCpu?.pid).toBe(2);
+    expect(estado.listos.map((proceso) => proceso.pid)).toEqual([3]);
+  });
+
+  it("mantiene FIFO si el primer proceso en espera no cabe en memoria", () => {
+    const simulador = new Simulador(150, 2);
+    simulador.agregarProceso(new Proceso(1, 100, 5));
+    simulador.agregarProceso(new Proceso(2, 50, 5));
+    simulador.agregarProceso(new Proceso(3, 60, 5));
+    simulador.agregarProceso(new Proceso(4, 30, 5));
+
+    simulador.liberarProceso(2);
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.esperandoMemoria.map((proceso) => proceso.pid)).toEqual([3, 4]);
+    expect(estado.listos).toHaveLength(1);
+  });
+
+  it("cancela un proceso bloqueado y lo retira de la cola de E/S", () => {
+    const simulador = new Simulador(100, 2);
+    const proceso = new Proceso(1, 100, 5, { despuesDeTicksCpu: 1, duracion: 3 });
+
+    simulador.agregarProceso(proceso);
+    simulador.tick();
+    simulador.tick();
+    expect(simulador.obtenerEstado().bloqueados).toHaveLength(1);
+
+    simulador.liberarProceso(1);
+
+    const estado = simulador.obtenerEstado();
+    expect(estado.bloqueados).toHaveLength(0);
+    expect(estado.cancelados.some((p) => p.pid === 1)).toBe(true);
+    expect(estado.mapaMemoria.every((bloque) => bloque.estaLibre)).toBe(true);
+  });
+
+  it("rechaza agregar un proceso que ya no esta NUEVO sin reservar memoria", () => {
+    const simulador = new Simulador(100, 2);
+    const proceso = new Proceso(1, 50, 5);
+    proceso.cancelar();
+
+    expect(() => simulador.agregarProceso(proceso)).toThrow(/debe ser NUEVO/);
+    expect(simulador.obtenerEstado().mapaMemoria).toEqual([
+      { inicio: 0, tamanio: 100, estaLibre: true, pidAsignado: undefined },
+    ]);
   });
 
   it("bloquea procesos al cumplir el evento de E/S", () => {

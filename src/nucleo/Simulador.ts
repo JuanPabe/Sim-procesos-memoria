@@ -11,6 +11,7 @@ export class Simulador {
   private readonly _esperandoMemoria: Proceso[] = [];
   private readonly _bloqueados: Proceso[] = [];
   private readonly _terminados: Proceso[] = [];
+  private readonly _cancelados: Proceso[] = [];
   private _tick: number;
 
   constructor(memoriaTotal: number, quantum: number, politica: PoliticaAsignacion = new PrimerAjuste()) {
@@ -22,6 +23,11 @@ export class Simulador {
   agregarProceso(proceso: Proceso): void {
     if (this._procesos.has(proceso.pid)) {
       throw new Error(`Ya existe un proceso con PID ${String(proceso.pid)}.`);
+    }
+    if (proceso.estado !== "NUEVO") {
+      throw new Error(
+        `No se puede agregar el proceso ${String(proceso.pid)}: su estado actual es ${proceso.estado}, debe ser NUEVO.`,
+      );
     }
 
     this._procesos.set(proceso.pid, proceso);
@@ -37,12 +43,22 @@ export class Simulador {
   }
 
   liberarProceso(pid: number): void {
-    if (!this._procesos.has(pid)) {
+    const proceso = this._procesos.get(pid);
+    if (proceso === undefined) {
       throw new Error(`No existe un proceso con PID ${String(pid)}.`);
     }
 
-    this._memoria.liberar(pid);
+    if (proceso.estado !== "ESPERANDO_MEMORIA") {
+      this._memoria.liberar(pid);
+    }
+
+    this._planificador.retirar(pid);
+    this._quitarProcesoDeCola(this._esperandoMemoria, pid);
+    this._quitarProcesoDeCola(this._bloqueados, pid);
+    proceso.cancelar();
     this._procesos.delete(pid);
+    this._cancelados.push(proceso);
+    this._intentarAdmitirProcesosEspera();
   }
 
   tick(): void {
@@ -74,6 +90,7 @@ export class Simulador {
       esperandoMemoria: this._esperandoMemoria.map((proceso) => proceso.obtenerInfo()),
       bloqueados: this._bloqueados.map((proceso) => proceso.obtenerInfo()),
       terminados: this._terminados.map((proceso) => proceso.obtenerInfo()),
+      cancelados: this._cancelados.map((proceso) => proceso.obtenerInfo()),
       mapaMemoria: this._memoria.obtenerMapa(),
     };
   }
@@ -95,15 +112,25 @@ export class Simulador {
   }
 
   private _intentarAdmitirProcesosEspera(): void {
-    for (let i = this._esperandoMemoria.length - 1; i >= 0; i -= 1) {
-      const proceso = this._esperandoMemoria[i];
-      if (proceso === undefined) continue;
-
-      if (this._memoria.asignar(proceso.pid, proceso.memoriaRequerida)) {
-        this._esperandoMemoria.splice(i, 1);
-        proceso.admitir();
-        this._planificador.encolar(proceso);
+    while (this._esperandoMemoria.length > 0) {
+      const proceso = this._esperandoMemoria[0];
+      if (
+        proceso === undefined ||
+        !this._memoria.asignar(proceso.pid, proceso.memoriaRequerida)
+      ) {
+        return;
       }
+
+      this._esperandoMemoria.shift();
+      proceso.admitir();
+      this._planificador.encolar(proceso);
+    }
+  }
+
+  private _quitarProcesoDeCola(cola: Proceso[], pid: number): void {
+    const indice = cola.findIndex((proceso) => proceso.pid === pid);
+    if (indice !== -1) {
+      cola.splice(indice, 1);
     }
   }
 
