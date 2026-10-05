@@ -2,16 +2,18 @@
 
 Proyecto TypeScript para simular la gestión de procesos, memoria contigua y planificación RR (Round Robin) con ticks discretos.
 
-## Qué incluye
+## Objetivo del sistema
 
-- Modelado de procesos con estados y eventos de E/S.
-- Administración de memoria contigua con políticas de asignación:
-  - Primer ajuste
-  - Mejor ajuste
-  - Peor ajuste
-- Planificador Round Robin con quantum configurable.
-- Estado del simulador en cada tick.
-- Métricas de uso de CPU y memoria.
+Este proyecto simula un sistema operativo básico con:
+
+- creación y gestión de procesos;
+- asignación de memoria contigua;
+- políticas de colocación de memoria;
+- planificación de CPU mediante Round Robin;
+- eventos de E/S y estados de proceso;
+- métricas del estado global del sistema.
+
+La simulación se ejecuta en ticks discretos, donde cada tick representa una unidad de tiempo del sistema.
 
 ## Instalación
 
